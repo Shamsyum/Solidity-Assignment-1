@@ -1,40 +1,58 @@
 pragma solidity ^0.5.0;
 
-contract studentEnrolment{
+contract StudentEnrolment{
     
     address  payable private myAddress;
     
-    enum gender{male, female}
+    enum Gender{Male, Female}
+    enum Class{Onsite, Online}
     
-    struct student{
+    
+    struct Student{
         string name;
         uint age;
         address addr;
         bool digree;
-        gender gen;
+        Gender gender;
+        Class class;
+        uint rollNumber;
     }
     
-    mapping(address => student)studentData;
+    mapping(uint => Student)studentData;
     
-    function _setAddress(address payable _myAddress)public{
+    function setMyAddress(address payable _myAddress)public{
         myAddress = _myAddress;
     }
     
-    function _enrollStudent(string memory _name, uint _age, address _address, bool _haveDegree, gender _gender)public payable{
+    function enrollStudent(string memory _name, uint _age, address _address, bool _haveDegree, Gender _gender, Class _class, uint _rollNumber)public payable{
         
-        student memory myStudent = student(_name, _age, _address, _haveDegree, _gender);
+        require(msg.value >= 2 ether);
+       
+        Student memory myStudent = Student(_name, _age, _address, _haveDegree, _gender, _class, _rollNumber);
         
         myAddress.transfer(msg.value);
         
-        studentData[_address] = myStudent;
+        studentData[_rollNumber] = myStudent;
     }
     
-    function _balance()public view returns(uint){
+    function getStudentData(uint _rollNumber)public view returns(string memory, uint, address, bool, Gender, Class, uint){
+        return(
+            studentData[_rollNumber].name,
+            studentData[_rollNumber].age,
+            studentData[_rollNumber].addr,
+            studentData[_rollNumber].digree,
+            studentData[_rollNumber].gender,
+            studentData[_rollNumber].class,
+            studentData[_rollNumber].rollNumber
+            );
+    }
+    
+    function balance()public view returns(uint){
         return myAddress.balance;
     }
-    
-    function _has_Degree(address _address)public view returns(bool digree){
-        return studentData[_address].digree;
+
+    function hasDegree(uint _rollNumber)public view returns(bool){
+        return studentData[_rollNumber].digree;
     }
     
 }
